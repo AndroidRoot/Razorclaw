@@ -5,6 +5,9 @@ by android.mobi
 Razorclaw is a root exploit in the asus backup functionality introduced
 in the recent firmware updates.
 
+Razorclaw (both the java and native components) are licensed under the 
+GNU GPL v2. sqlite3 is released under the public domain.
+
 Building the java application
 -----------------------------
 
