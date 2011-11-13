@@ -58,10 +58,6 @@ public class RazorclawActivity extends Activity {
         }
         
         String fullOutput = "";
-        
-        //Check if we're running a vulnerable version of the TF101 ROM.
-        String romversion = android.os.Build.VERSION.INCREMENTAL;
-        
         int rooted = checkRootFile("su");
         
         if (rooted==1) {
@@ -72,9 +68,9 @@ public class RazorclawActivity extends Activity {
         	if (rooted==2) 
         		fullOutput = "Notice: This device has an incorrect SU binary. Be advised, we will overwrite this with a correct version.\n";
 
-        	if (!romversion.contains("8.6.5.19")) {
+        	if (!assertVersion()) {
         		if (checkRootFile("asus-backup")==1)
-        			fullOutput += "This device ("+romversion+") may have the exploitable file, but is untested.\n\n"+ credits + "\n\nWarning: by proceeding with this application, you accept that the creators are in no way responsible for any damage caused.";
+        			fullOutput += "This device may have the exploitable file, but is untested.\n\n"+ credits + "\n\nWarning: by proceeding with this application, you accept that the creators are in no way responsible for any damage caused.";
         		else {
         		fullOutput = "This device lacks the needed file (bad luck).\n\n" + credits;
             	btn.setText("Exit");
@@ -84,7 +80,7 @@ public class RazorclawActivity extends Activity {
         		output.setText(fullOutput);
         		
         	} else { 
-        		fullOutput += "You are in luck. You are on a tested rom version! (" + romversion + ")\n\n" + credits + "\n\nWarning: by proceeding with this application, you accept that the creators are in no way responsible for any damage caused.";
+        		fullOutput += "You are in luck. You are on a tested rom version!\n\n" + credits + "\n\nWarning: by proceeding with this application, you accept that the creators are in no way responsible for any damage caused.";
         
         		output.setText(fullOutput);
         	
@@ -181,5 +177,17 @@ public class RazorclawActivity extends Activity {
 		}
 	
 		return 0;
+    }
+    
+    private boolean assertVersion(){
+    	String incremental = android.os.Build.VERSION.INCREMENTAL;
+    	incremental = incremental.replaceAll(".*_epad-", "");
+    	incremental = incremental.replaceAll("-20[0-9]*","");
+    	incremental = incremental.replace("8.6.", "");
+    	String [] versionNumbers = incremental.split("\\.");
+    	int MIN_FIRST_V_NUMBER = 5, ACTUAL_FIRST_V_NUMBER = Integer.parseInt(versionNumbers[0]);
+    	int MIN_SECOND_V_NUMBER = 18, ACTUAL_SECOND_V_NUMBER = Integer.parseInt(versionNumbers[1]);
+    	
+    	return (ACTUAL_FIRST_V_NUMBER >= MIN_FIRST_V_NUMBER && ACTUAL_SECOND_V_NUMBER >= MIN_SECOND_V_NUMBER);
     }
 }
