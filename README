@@ -1,0 +1,30 @@
+Razorclaw - asus backup local root exploit
+by android.mobi
+==========================================
+
+Razorclaw is a root exploit in the asus backup functionality introduced
+in the recent firmware updates.
+
+Building the java application
+-----------------------------
+
+    Build using eclipse or ant:-
+        
+        $ ant debug 
+
+           -or-
+        
+        $ ant release
+
+Building the native binary
+--------------------------
+
+    Please note that the native binary (assets/razorclaw) is not rebuilt
+    by default, to rebuild it please run:-
+
+        $ make -C assets/
+
+    You will need arm-eabi-gcc in your path from the android source tree
+    and not the NDK.
+
+    The source for the native binary can be found in the native/ directory.

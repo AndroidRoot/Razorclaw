@@ -1,0 +1,8 @@
+bin/
+gen/
+local.properties
+R.java
+*.o
+native/razorclaw
+native/superuser/apk.h
+native/superuser/su.h

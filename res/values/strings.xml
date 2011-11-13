@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, RazorclawActivity!</string>
+    <string name="app_name">Razorclaw</string>
+    <string name="buttonText">Root me nao!</string>
+    <string name="welcome">Welcome to Razorclaw! This is a one-click root installer for the Asus Transformer TF101.</string>
+    <string name="immutableText">Check this to \'lock\' your su binary, so that it will not be overwritten by an OTA. Keep in mind that you will be unable to update the binary through SuperUser if you select this!</string>
+    <color name="white1">#FFFF</color>
+
+</resources>
