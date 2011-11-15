@@ -21,6 +21,7 @@ package mobi.androidroot.razorclaw;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -31,7 +32,8 @@ import java.util.Random;
 
 public class RazorclawActivity extends Activity {
     /** Called when the activity is first created. */
-    @Override
+    private static final String TAG = "Razorclaw";
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
@@ -61,10 +63,12 @@ public class RazorclawActivity extends Activity {
         
         //Check if we're running a vulnerable version of the TF101 ROM.
         String romversion = android.os.Build.VERSION.INCREMENTAL;
+        Log.i(TAG, "Current ROM: "+romversion);
         
         int rooted = checkRootFile("su");
         
         if (rooted==1) {
+        	Log.e(TAG,"Already rooted.");
         	btn.setText("Exit");
         	output.setText("This device already has a correct SU binary (already rooted), unable to continue.\n\n" + credits);
         	btn.setOnClickListener(exitListener);
@@ -72,47 +76,48 @@ public class RazorclawActivity extends Activity {
         	if (rooted==2) 
         		fullOutput = "Notice: This device has an incorrect SU binary. Be advised, we will overwrite this with a correct version.\n";
 
-        	if (!romversion.contains("8.6.5.19")) {
-        		if (checkRootFile("asus-backup")==1)
-        			fullOutput += "This device ("+romversion+") may have the exploitable file, but is untested.\n\n"+ credits + "\n\nWarning: by proceeding with this application, you accept that the creators are in no way responsible for any damage caused.";
-        		else {
-        		fullOutput = "This device lacks the needed file (bad luck).\n\n" + credits;
-            	btn.setText("Exit");
-        		btn.setOnClickListener(exitListener);
-        		}
-        		
-        		output.setText(fullOutput);
-        		
-        	} else { 
+        	if (romversion.contains("8.6.5.19") || romversion.contains("8.6.6.19")) {
+        		Log.i(TAG,"Tested rom version.");
         		fullOutput += "You are in luck. You are on a tested rom version! (" + romversion + ")\n\n" + credits + "\n\nWarning: by proceeding with this application, you accept that the creators are in no way responsible for any damage caused.";
-        
         		output.setText(fullOutput);
-        	
-        		//Extract razorclaw binary
-        		try {
-        			InputStream nativebin = getAssets().open("razorclaw");
-        			OutputStream out = new FileOutputStream("/data/data/mobi.androidroot.razorclaw/razorclaw");
-        			byte[] buf = new byte[1024];
-        			int len;
-        			while ((len = nativebin.read(buf)) > 0) {
-        				out.write(buf, 0, len);
-        			}
-        	
-        			nativebin.close();
-        			out.close();
-        	
-        		} catch (IOException e) {
-        			throw new RuntimeException(e); 
+        	} else {
+        		if (checkRootFile("asus-backup")==1) {
+        			Log.w(TAG,"Not tested, but has asus-backup.");
+        			fullOutput += "This device ("+romversion+") may have the exploitable file, but is untested.\n\n"+ credits + "\n\nWarning: by proceeding with this application, you accept that the creators are in no way responsible for any damage caused.";
+        		} else {
+        			Log.e(TAG,"Could not locate asus-backup, or has wrong permissions.");
+        			fullOutput = "This device lacks the needed file (bad luck).\n\n" + credits;
+        			btn.setText("Exit");
+        			btn.setOnClickListener(exitListener);
         		}
-        
-        		//Chmod it so we can run it.
-        		try {
-        			Runtime.getRuntime().exec("/system/bin/chmod 755 /data/data/mobi.androidroot.razorclaw/razorclaw");
-        		} catch (IOException e) {
-        			e.printStackTrace();
-        			System.exit(-1);
-        		}
+        		output.setText(fullOutput);
         	}
+        	
+        	Log.i(TAG,"Extracting razorclaw.");
+        		
+        	//Extract razorclaw binary
+        	try {
+        		InputStream nativebin = getAssets().open("razorclaw");
+        		OutputStream out = new FileOutputStream("/data/data/mobi.androidroot.razorclaw/razorclaw");
+        		byte[] buf = new byte[1024];
+       			int len;
+       			while ((len = nativebin.read(buf)) > 0) {
+       				out.write(buf, 0, len);
+       			}
+
+       			nativebin.close();
+       			out.close();
+        	
+       		} catch (IOException e) {
+       			Log.e(TAG,e.toString());
+       		}
+        
+       		//Chmod it so we can run it.
+       		try {
+       			Runtime.getRuntime().exec("/system/bin/chmod 755 /data/data/mobi.androidroot.razorclaw/razorclaw");
+       		} catch (IOException e) {
+       			Log.e(TAG,e.toString());
+       		}
         }
     }
     
@@ -123,6 +128,7 @@ public class RazorclawActivity extends Activity {
     		EditText output = (EditText)findViewById(R.id.outputText);
             Button btn = (Button)findViewById(R.id.rootButton);
             btn.setEnabled(false);
+            Log.i(TAG,"Rooting!");
     		Toast.makeText(getBaseContext(),"Rooting...",Toast.LENGTH_LONG).show();
     		try {
     			Process p = Runtime.getRuntime().exec("/data/data/mobi.androidroot.razorclaw/razorclaw --install");
@@ -139,8 +145,7 @@ public class RazorclawActivity extends Activity {
     			}
     			
     		} catch (IOException e) {
-                e.printStackTrace();
-                System.exit(-1);
+    			Log.e(TAG,e.toString());
             }
         	btn.setText("Exit");
         	btn.setEnabled(true);
@@ -151,8 +156,9 @@ public class RazorclawActivity extends Activity {
     
     private OnClickListener exitListener = new OnClickListener() {
     	public void onClick(View v) {
+    		Log.i(TAG,"Exiting.");
     		Toast.makeText(getBaseContext(),"Exiting!",Toast.LENGTH_LONG).show();
-   			System.exit(-1);
+    		System.exit(-1);
     	}
     };
     
@@ -176,8 +182,7 @@ public class RazorclawActivity extends Activity {
 			}
 
     	} catch (Exception e){
-			e.printStackTrace();
-			System.exit(-1);
+    		Log.e(TAG,e.toString());
 		}
 	
 		return 0;
